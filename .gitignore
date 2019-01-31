@@ -1,3 +1,5 @@
 Makefile
 *.o
 *.user
+*.user*
+build/

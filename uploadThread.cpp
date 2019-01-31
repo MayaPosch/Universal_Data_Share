@@ -44,7 +44,7 @@ void UploadThread::sendData() {
     output.append((char*) &filesize, sizeof(filesize));
     
     QFileInfo fileInf = file->fileName();
-    QByteArray filename = fileInf.fileName().toAscii();
+    QByteArray filename = fileInf.fileName().toLatin1();
     quint32 length = filename.size();
     output.append((char*) &length, sizeof(length)); // size of file in bytes
     
@@ -68,7 +68,7 @@ void UploadThread::sendData() {
     length = output.size() + sizeof(length);
     lba.append((char*) &length, sizeof(length));
     
-    qDebug("Data length: " + QString::number(length).toAscii());
+    qDebug("Data length: " + QString::number(length).toLatin1());
     
     output.prepend(lba); // data length prefix
     
