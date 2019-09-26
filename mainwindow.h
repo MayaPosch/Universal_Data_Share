@@ -27,7 +27,7 @@
 #define STATICLIB
 //#define _WIN32_WINNT 0x0601
 
-#include <miniupnpc.h>
+#include <miniupnpc/miniupnpc.h>
 
 namespace Ui {
     class MainWindow;

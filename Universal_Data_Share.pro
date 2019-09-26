@@ -6,6 +6,8 @@
 
 QT       += core gui network
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 TARGET = Universal_Data_Share
 TEMPLATE = app
 
@@ -23,12 +25,12 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-win32 {
-    INCLUDEPATH += d:/dev/miniupnpc
-}
-else {
-    INCLUDEPATH += /usr/include/miniupnpc
-}
+# win32 {
+    # INCLUDEPATH += d:/dev/miniupnpc
+# }
+# else {
+    # INCLUDEPATH += /usr/include/miniupnpc
+# }
 
 LIBS += -lminiupnpc
 

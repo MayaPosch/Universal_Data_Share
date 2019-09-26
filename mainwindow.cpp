@@ -17,8 +17,8 @@
 #include "downloadThread.h"
 #include "uploadThread.h"
 
-#include <upnpcommands.h>
-#include <upnperrors.h>
+#include <miniupnpc/upnpcommands.h>
+#include <miniupnpc/upnperrors.h>
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -201,7 +201,7 @@ void MainWindow::goOnline() {
     const char* minissdpdpath = 0;
     int error;
     int response;
-    devlist = upnpDiscover(1000, multicastif, minissdpdpath, 0, 0, &error);
+    devlist = upnpDiscover(1000, multicastif, minissdpdpath, 0, 0, 10, &error);
     if (error > 0) {
         QMessageBox::critical(this, "Error", "UPnP discovery failed: " + QString::number(error));
         return;
@@ -235,7 +235,7 @@ void MainWindow::goOnline() {
             return;
         }
         
-        externalIP = QString::fromAscii(externalIPAddress, 40);
+        externalIP = QString::fromLocal8Bit(externalIPAddress, 40);
         
         // connect to IGD and set up port mapping. We use port 11310.
         QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
@@ -248,7 +248,7 @@ void MainWindow::goOnline() {
                 foreach (QNetworkAddressEntry entry, interfaces[i].addressEntries()) {
                     if(entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
                         //ui->textEdit->append(entry.ip().toString());
-                        iaddr = entry.ip().toString().toAscii().data(); // to const char*
+                        iaddr = entry.ip().toString().toLocal8Bit().data(); // to const char*
                     }
                 }
             }
@@ -374,7 +374,7 @@ void MainWindow::receiveData() {
     QByteArray temp = data.mid(0, 4);
     quint32 datasize = *((quint32*) (temp.data()));
     
-    qDebug("datasize: " + QString::number(datasize).toAscii());
+    qDebug("datasize: " + QString::number(datasize).toLocal8Bit());
     
     // try to read until the full packet size has been read.
     // TODO: off-load this to a separate download thread.
@@ -385,7 +385,7 @@ void MainWindow::receiveData() {
         else { break; }
     }
     
-    //qDebug("Data size " + QString::number(data.size()).toAscii());
+    //qDebug("Data size " + QString::number(data.size()).toLocal8Bit());
         
     if (data.size() < 1 || data.size() < datasize) {
         QMessageBox::information(this, tr("Read Failure"), tr("Failed to read the response data."));
@@ -416,27 +416,27 @@ void MainWindow::receiveData() {
             item = new QTreeWidgetItem();
             intbytes = data.mid(startIndex, 4);
             fileID = *((quint32*) (intbytes.data()));
-            qDebug("StartIndex: " + QString::number(startIndex).toAscii());
-            qDebug("FileID: " + QString::number(fileID).toAscii());
+            qDebug("StartIndex: " + QString::number(startIndex).toLocal8Bit());
+            qDebug("FileID: " + QString::number(fileID).toLocal8Bit());
             item->setData(0, Qt::UserRole, QVariant(fileID));
             startIndex += sizeof(fileID);
             sizebytes = data.mid(startIndex, 8);
             fileSize = *((quint64*) (sizebytes.data()));
             item->setText(1, QString::number(fileSize));
-            qDebug("StartIndex: " + QString::number(startIndex).toAscii());
-            qDebug("filesize: " + QString::number(fileSize).toAscii());
+            qDebug("StartIndex: " + QString::number(startIndex).toLocal8Bit());
+            qDebug("filesize: " + QString::number(fileSize).toLocal8Bit());
             startIndex += sizeof(fileSize);
             intbytes = data.mid(startIndex, 4);
             length = *((quint32*) (intbytes.data()));
-            qDebug("StartIndex: " + QString::number(startIndex).toAscii());
-            qDebug("Length: " + QString::number(length).toAscii());
+            qDebug("StartIndex: " + QString::number(startIndex).toLocal8Bit());
+            qDebug("Length: " + QString::number(length).toLocal8Bit());
             startIndex += sizeof(length);
-            qDebug("StartIndex: " + QString::number(startIndex).toAscii());
+            qDebug("StartIndex: " + QString::number(startIndex).toLocal8Bit());
             item->setText(0, data.mid(startIndex, length));
             //lastIndex += startIndex + length;
             startIndex += length;
-            qDebug("StartIndex: " + QString::number(startIndex).toAscii());
-            qDebug("Adding Item to List: " + item->text(0).toAscii());
+            qDebug("StartIndex: " + QString::number(startIndex).toLocal8Bit());
+            qDebug("Adding Item to List: " + item->text(0).toLocal8Bit());
             items.append(item);
         }
         
@@ -473,9 +473,9 @@ void MainWindow::serverRead() {
     QByteArray size = data.mid(0, 4);
     quint32 datasize = *(quint32*)(size.data());
     
-    qDebug("datasize: " + QString::number(datasize).toAscii());
-    qDebug("Data size " + QString::number(data.size()).toAscii());
-    qDebug("sSocket size: " + QString::number(sSocket->bytesAvailable()).toAscii());
+    qDebug("datasize: " + QString::number(datasize).toLocal8Bit());
+    qDebug("Data size " + QString::number(data.size()).toLocal8Bit());
+    qDebug("sSocket size: " + QString::number(sSocket->bytesAvailable()).toLocal8Bit());
     
     // try to read until the full packet size has been read.
     while (data.size() < datasize) {
@@ -485,7 +485,7 @@ void MainWindow::serverRead() {
         else { break; }
     }
     
-    qDebug("Data size " + QString::number(data.size()).toAscii());
+    qDebug("Data size " + QString::number(data.size()).toLocal8Bit());
         
     if (data.size() < 1 || data.size() < datasize) {
         sSocket->disconnectFromHost();
@@ -510,7 +510,7 @@ void MainWindow::serverRead() {
         output += "LIST";
         for (quint32 i = 0; i < localList->topLevelItemCount(); ++i) {
             item = localList->topLevelItem(i);
-            filename = item->text(0).toAscii();
+            filename = item->text(0).toLocal8Bit();
             length = filename.size();
             output.append((char*) &i, sizeof(i)); // file ID            
             QFileInfo info = files[i]->fileName();

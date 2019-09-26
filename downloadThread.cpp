@@ -82,9 +82,9 @@ void DownloadThread::receiveData() {
     QByteArray temp = data.mid(0, 4);
     quint32 datasize = *(quint32*)(temp.data());
     
-    qDebug("datasize: " + QString::number(datasize).toAscii());
-    qDebug("Data size " + QString::number(data.size()).toAscii());
-    qDebug("cSocket size: " + QString::number(cSocket->bytesAvailable()).toAscii());
+    qDebug("datasize: " + QString::number(datasize).toLocal8Bit());
+    qDebug("Data size " + QString::number(data.size()).toLocal8Bit());
+    qDebug("cSocket size: " + QString::number(cSocket->bytesAvailable()).toLocal8Bit());
     
     // try to read until the full message size has been read.
     while (data.size() < datasize) {
@@ -92,13 +92,13 @@ void DownloadThread::receiveData() {
             data += cSocket->readAll();
             
             // update progress signal
-            //qDebug("Progress: " + QString::number(data.size()).toAscii());
+            //qDebug("Progress: " + QString::number(data.size()).toLocal8Bit());
             //emit progress((int) (data.size() / datasize * 100));
         }
         else { break; }
     }
     
-    qDebug("Data size " + QString::number(data.size()).toAscii());
+    qDebug("Data size " + QString::number(data.size()).toLocal8Bit());
         
     if (data.size() < 1 || data.size() < datasize) {
         emit error("Failed to read the response data.");
@@ -149,14 +149,14 @@ void DownloadThread::receiveData() {
         hasher.addData(filedata);
         if (hasher.result() != hash) {
             // Corrupted download.
-            qDebug("File hash: " + QString(hash).toAscii());
-            qDebug("New hash: " + QString(hasher.result()).toAscii());
+            qDebug("File hash: " + QString(hash).toLocal8Bit());
+            qDebug("New hash: " + QString(hasher.result()).toLocal8Bit());
             emit error("Hash failure; possibly corrupted download.");
             emit finished();
             return; 
         }
         
-        qDebug("Writing " + QString::number(filedata.size()).toAscii() + " bytes to file...");
+        qDebug("Writing " + QString::number(filedata.size()).toLocal8Bit() + " bytes to file...");
         file.setFileName(filepath);
         file.open(QIODevice::WriteOnly);
         file.write(filedata);
@@ -194,14 +194,14 @@ void DownloadThread::receiveData() {
         hasher.addData(filedata);
         if (hasher.result() != hash) {
             // Corrupted download.
-            qDebug("File hash: " + QString(hash).toAscii());
-            qDebug("New hash: " + QString(hasher.result()).toAscii());
+            qDebug("File hash: " + QString(hash).toLocal8Bit());
+            qDebug("New hash: " + QString(hasher.result()).toLocal8Bit());
             emit error("Hash failure; possibly corrupted download.");
             emit finished();
             return; 
         }
         
-        qDebug("Writing " + QString::number(filedata.size()).toAscii() + " bytes to file...");
+        qDebug("Writing " + QString::number(filedata.size()).toLocal8Bit() + " bytes to file...");
         file.write(filedata);
         if (currentSegment >= segments) {
             qDebug("Written. Emitting finished().");
