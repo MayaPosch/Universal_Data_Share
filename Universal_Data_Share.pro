@@ -25,22 +25,12 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-# win32 {
-    # INCLUDEPATH += d:/dev/miniupnpc
-# }
-# else {
-    # INCLUDEPATH += /usr/include/miniupnpc
-# }
-
 LIBS += -lminiupnpc
 
 win32 {
     LIBS += -lws2_32 -liphlpapi
 }
 
-
-
-#CONFIG += staticlib link_prl
 
 
 

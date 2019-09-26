@@ -36,7 +36,7 @@ void UploadThread::sendData() {
     quint8 revision = 0;
     output.append((char) revision);        
     output += "FILE";
-    
+	
     //qDebug("FILE id: " + QString::number(id).toLocal8Bit());
     
     file->open(QIODevice::ReadOnly);

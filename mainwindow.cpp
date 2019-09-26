@@ -9,7 +9,7 @@
     Notes:
                 - 
                 
-    2011/09/16, Maya Posch
+    2019/01/30, Maya Posch
     (c) Nyanko.ws
 */
 
@@ -159,7 +159,7 @@ void MainWindow::downloadFile() {
         
         QTreeWidgetItem* item = remoteList->currentItem();
         QVariant variant = item->data(0, Qt::UserRole);
-        quint32 fileID = variant.toInt();
+        quint32 fileID = variant.toUInt();
         data.append((char*) &fileID, sizeof(fileID));
         
         // Ask for the filename to save to.
@@ -197,11 +197,18 @@ void MainWindow::goOnline() {
     // do UPnP discovery and report on how many valid IGDs were found.       
     UPNPDev* devlist;
     char lanaddr[64]; // IP address on the LAN
-    const char* multicastif = 0;
-    const char* minissdpdpath = 0;
-    int error;
+    const char* multicastif = nullptr;
+    const char* minissdpdpath = nullptr;
+    int error = 0;
     int response;
-    devlist = upnpDiscover(1000, multicastif, minissdpdpath, 0, 0, 10, &error);
+#if MINIUPNPC_API_VERSION < 14
+    /* miniupnpc 1.6 */
+    devlist = upnpDiscover(2000, multicastif, minissdpdpath, 0, 0, &error);
+#else
+    /* miniupnpc 1.9.20150730 */
+    devlist = upnpDiscover(2000, multicastif, minissdpdpath, 0, 0, 2, &error);
+#endif
+    //devlist = upnpDiscover(1000, multicastif, minissdpdpath, UPNP_LOCAL_PORT_ANY, 0, &error);
     if (error > 0) {
         QMessageBox::critical(this, "Error", "UPnP discovery failed: " + QString::number(error));
         return;
@@ -240,7 +247,7 @@ void MainWindow::goOnline() {
         // connect to IGD and set up port mapping. We use port 11310.
         QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
         quint32 count = interfaces.size();
-        const char* iaddr = 0;
+        const char* iaddr = nullptr;
         for (quint32 i = 0; i < count; ++i) {
             //QNetworkInterface interface = interfaces[i];
             if (interfaces[i].flags().testFlag(QNetworkInterface::IsUp) &&
@@ -295,7 +302,7 @@ void MainWindow::goOffline() {
     int r;
     const char* eport = "11310";        // external port
     const char* proto = "TCP";          // protocol to use.
-    r = UPNP_DeletePortMapping(pUrls->controlURL, pData->first.servicetype, eport, proto, 0);
+    r = UPNP_DeletePortMapping(pUrls->controlURL, pData->first.servicetype, eport, proto, nullptr);
     if (r != UPNPCOMMAND_SUCCESS) {
         QMessageBox::critical(this, tr("Error"), tr("DeletePortMapping() failed with error: %1").arg(QString::number(r) + " (" + strupnperror(r) + ")"));
         return;
@@ -562,7 +569,7 @@ void MainWindow::serverRead() {
 // --- ABOUT ---
 // Shows the About dialogue.
 void MainWindow::about() {
-    QMessageBox::about(this, tr("About"), tr("Universal Data Share 0.1 - by Nyanko.ws."));
+    QMessageBox::about(this, tr("About"), tr("Universal Data Share 0.2-alpha - by Maya Posch.\nwww.mayaposch.com"));
 }
 
 

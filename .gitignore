@@ -1,3 +1,6 @@
 Makefile
 *.o
 *.user
+*.user*
+build/
+*.exe
