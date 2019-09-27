@@ -265,8 +265,9 @@ void MainWindow::goOnline() {
         const char* iport = "11310";                // internal port
         const char* desc = "Universal Data Share";  // description of port mapping
         const char* proto = "TCP";                  // protocol to use.
-        const char* leaseDuration = "0";            // duration of the mapping? Set to 0 as in the example code default.
-        r = UPNP_AddPortMapping(pUrls->controlURL, pData->first.servicetype, eport, iport, iaddr, desc, proto, 0, leaseDuration);
+        const char* leaseDuration = "3600";            // duration of the mapping? Set to 0 as in the example code default.
+        r = UPNP_AddPortMapping(pUrls->controlURL, pData->first.servicetype, eport, iport, 
+									(const char*) &lanaddr, desc, proto, 0, leaseDuration);
         if (r != UPNPCOMMAND_SUCCESS) {
             QMessageBox::critical(this, tr("Error"), tr("AddPortMapping() failed with error: %1").arg(QString::number(r) + " (" + strupnperror(r) + ")"));
         }
